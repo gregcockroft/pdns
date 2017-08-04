@@ -214,5 +214,8 @@ AS_IF([test "x$enable_dns_over_tls" != "xno" -o "x$enable_dns_over_https" != "xn
     [AC_MSG_NOTICE([OpenSSL: no])]
   )]
 )
-
+AS_IF([test "x$enable_namedcache" != "xno"],
+  [AC_MSG_NOTICE([NAMEDCACHE: yes])],
+  [AC_MSG_NOTICE([NAMEDCACHE: no])]
+)
 AC_MSG_NOTICE([])

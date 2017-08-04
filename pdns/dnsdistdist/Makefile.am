@@ -114,6 +114,13 @@ dnsdist_SOURCES = \
 	dnsdist-dynblocks.hh \
 	dnsdist-ecs.cc dnsdist-ecs.hh \
 	dnsdist-idstate.cc \
+	dnsdist-lua-namedcache.cc \
+	dnsdist-namedcache.cc dnsdist-namedcache.hh \
+	dnsdist-nc-cdbio.cc dnsdist-nc-cdbio.hh \
+	dnsdist-nc-lrucache.cc dnsdist-nc-lrucache.hh \
+	dnsdist-nc-mapcache.cc dnsdist-nc-mapcache.hh \
+	dnsdist-nc-basecache.cc dnsdist-nc-basecache.hh \
+	dnsdist-nc-nocache.cc dnsdist-nc-nocache.hh \
 	dnsdist-lua.hh dnsdist-lua.cc \
 	dnsdist-lua-actions.cc \
 	dnsdist-lua-bindings.cc \
