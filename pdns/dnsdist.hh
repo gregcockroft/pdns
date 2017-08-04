@@ -983,6 +983,7 @@ void setPoolPolicy(pools_t& pools, const string& poolName, std::shared_ptr<Serve
 void addServerToPool(pools_t& pools, const string& poolName, std::shared_ptr<DownstreamState> server);
 void removeServerFromPool(pools_t& pools, const string& poolName, std::shared_ptr<DownstreamState> server);
 
+
 struct CarbonConfig
 {
   ComboAddress server;
@@ -1025,6 +1026,7 @@ extern GlobalStateHolder<vector<DNSDistResponseRuleAction> > g_resprulactions;
 extern GlobalStateHolder<vector<DNSDistResponseRuleAction> > g_cachehitresprulactions;
 extern GlobalStateHolder<vector<DNSDistResponseRuleAction> > g_selfansweredresprulactions;
 extern GlobalStateHolder<NetmaskGroup> g_ACL;
+
 
 extern ComboAddress g_serverControl; // not changed during runtime
 

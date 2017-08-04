@@ -40,6 +40,7 @@ BOOST_REQUIRE([1.42])
 PDNS_ENABLE_UNIT_TESTS
 PDNS_WITH_RE2
 DNSDIST_ENABLE_DNSCRYPT
+DNSDIST_ENABLE_NAMEDCACHE
 PDNS_WITH_EBPF
 PDNS_WITH_NET_SNMP
 PDNS_WITH_LIBCAP
@@ -213,5 +214,8 @@ AS_IF([test "x$enable_dns_over_tls" != "xno" -o "x$enable_dns_over_https" != "xn
     [AC_MSG_NOTICE([OpenSSL: no])]
   )]
 )
-
+AS_IF([test "x$enable_namedcache" != "xno"],
+  [AC_MSG_NOTICE([NAMEDCACHE: yes])],
+  [AC_MSG_NOTICE([NAMEDCACHE: no])]
+)
 AC_MSG_NOTICE([])
