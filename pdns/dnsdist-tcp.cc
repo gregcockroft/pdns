@@ -995,6 +995,10 @@ static void handleDownstreamIO(std::shared_ptr<IncomingTCPConnectionState>& stat
   else {
     handleNewIOState(state, iostate, fd, handleDownstreamIOCallback, iostate == IOState::NeedRead ? state->getBackendReadTTD(now) : state->getBackendWriteTTD(now));
   }
+#ifdef HAVE_PROTOBUF
+        dr.uniqueId = dq.uniqueId;
+#endif
+        dr.qTag = dq.qTag;
 
   if (connectionDied) {
     sendQueryToBackend(state, now);
