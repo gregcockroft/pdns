@@ -315,9 +315,9 @@ void setupLuaNamedCache(bool client)
       dq->qTag = std::make_shared<QTag>();
     }
 
-    dq->qTag->add("found", std::string(found ? "yes": "no"));
+    dq->qTag->insert({"found", std::string(found ? "yes": "no")});
     if (found) {
-      dq->qTag->add("data", strRet);
+      dq->qTag->insert({"data", strRet});
     }
     return tableResult;
   });
