@@ -379,28 +379,6 @@ static bool fixUpResponse(char** response, uint16_t* responseLen, size_t* respon
   return true;
 }
 
-// GCA - copy qTag data into response object from question
-int copyQTag(DNSResponse &dr, const std::shared_ptr<QTag> qTagData)
-{
-  int iCount = 0;
-
-  if(qTagData != nullptr) {
-    if(dr.qTag == nullptr) {
-      dr.qTag = std::make_shared<QTag>();
-      }
-
-    if(dr.qTag != nullptr) {
-      for (const auto& itr : qTagData->tagData) {
-        dr.qTag->add(itr.first, itr.second);
-        iCount++;
-        }
-    }
-  }
-  return(iCount);
-}
-
-
-
 #ifdef HAVE_DNSCRYPT
 static bool encryptResponse(char* response, uint16_t* responseLen, size_t responseSize, bool tcp, std::shared_ptr<DNSCryptQuery> dnsCryptQuery, dnsheader** dh, dnsheader* dhCopy)
 {
