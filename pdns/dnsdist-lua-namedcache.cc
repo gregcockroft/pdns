@@ -269,12 +269,11 @@ void setupLuaNamedCache(bool client)
    *  bar.foo.example.com.
    *  foo.bar.foo.example.com.
    */
-  g_lua.registerFunction<std::unordered_map<string, boost::variant<string, bool> >(std::shared_ptr<DNSDistNamedCache>::*)(DNSQuestion *dq, int minLabels)>("lookupQWild", [](const std::shared_ptr<DNSDistNamedCache> pool, DNSQuestion *dq, int minLabels) {
+  g_lua.registerFunction<std::unordered_map<string, boost::variant<string, bool> >(std::shared_ptr<DNSDistNamedCache>::*)(DNSQuestion *dq, int minLabels)>("lookupQWild", [](const std::shared_ptr<DNSDistNamedCache> nc, DNSQuestion *dq, int minLabels) {
     std::unordered_map<string, boost::variant<string, bool>> tableResult;
-    if (! (pool)) {
+    if (!nc) {
       return tableResult;
     }
-    std::shared_ptr<DNSDistNamedCache> nc = pool;
 
     DNSName reverse = dq->qname->makeLowerCase().labelReverse();
     int totalLabelCount = reverse.countLabels();

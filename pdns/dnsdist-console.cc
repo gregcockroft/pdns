@@ -534,7 +534,6 @@ const std::vector<ConsoleKeyword> g_consoleKeywords{
   { "showDNSCryptBinds", true, "", "display the currently configured DNSCrypt binds" },
   { "showDOHFrontends", true, "", "list all the available DOH frontends" },
   { "showDynBlocks", true, "", "show dynamic blocks in force" },
-  { "showNamedCaches", true, "", "show named caches"},
   { "showPools", true, "", "show the available pools" },
   { "showPoolServerPolicy", true, "pool", "show server selection policy for this pool" },
   { "showResponseLatency", true, "", "show a plot of the response time latency distribution" },
