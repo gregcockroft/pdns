@@ -226,6 +226,73 @@ void setupLuaNamedCache(bool client)
     return tableResult;
   });
 
+    /* NamedCacheX::lookupQ(DNSQuestion)
+     *
+     * Performs a lookup against a named cache, using the provided DNSQuestion.
+     * This method will return a table containing the following keys:
+     *
+     * 		"found"
+     * 			Holds a boolean value indicating whether or not the
+     * 			named cache lookup was successful.
+     * 		"data"	Any associated data, as a string. This value may be
+     * 			nil, or an empty string.
+     *
+     * This method is very similar to NamedCacheX::lookup(), except that it
+     * may also append a maximum of two entries to the DNSQuestion.QTag field:
+     *
+     * 		"found"
+     * 			A string indicating whether or not there was an entry
+     * 			found in the named cache "yes", or "no" otherwise.
+     * 		"data"
+     * 			Any associated data, if nc_found == "yes".
+     */
+    g_lua.registerFunction<std::unordered_map<string, boost::variant<string, bool> >(std::shared_ptr<DNSDistNamedCache>::*)(DNSQuestion *dq, const boost::optional<int>, const boost::optional<bool>)>("lookupQ",
+                    [](const std::shared_ptr<DNSDistNamedCache> pool, DNSQuestion *dq, const boost::optional<int> walkMode, const boost::optional<bool> debug) {
+    std::unordered_map<string, boost::variant<string, bool>> tableResult;
+    int iWalkMode = 3; // fastest
+    if (walkMode) {
+      iWalkMode = *walkMode;
+    }
+    bool bDebug = false;
+    if (debug) {
+      bDebug = *debug;
+    }
+    if (! (pool)) {
+      return tableResult;
+    }
+    std::shared_ptr<DNSDistNamedCache> nc = pool;
+
+    // Normalize the query, by converting it to lower-case, and remove the
+    // trailing period, if there is one.
+    std::string strQuery = toLower(dq->qname->toString());
+    if(strQuery.back() == '.') {
+      strQuery.pop_back();
+    }
+    if (strQuery.length() == 0) {
+      throw std::runtime_error("The DNS question's QNAME is a zero-length string");
+    }
+
+    std::string strRet;
+    int hitType = nc->lookupWalk(strQuery, strRet, iWalkMode, bDebug);
+    bool found = !(hitType == CACHE_HIT::HIT_NONE);
+
+    tableResult.insert({"found", found});
+    tableResult.insert({"data", strRet});
+
+    // Make sure the DNSQuestion.QTag field is initialized, and add the
+    // qtags to the DNSQuestion.
+    if(dq->qTag == nullptr) {
+      dq->qTag = std::make_shared<QTag>();
+    }
+
+    dq->qTag->insert({"found", std::string(found ? "yes": "no")});
+    if (found) {
+      dq->qTag->insert({"data", strRet});
+    }
+    return tableResult;
+   });
+
+
 #endif // HAVE_NAMEDCACHE
 
 // GCA - Allow Protobuf generation 'on the fly'
