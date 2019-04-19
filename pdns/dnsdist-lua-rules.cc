@@ -459,4 +459,11 @@ void setupLuaRules()
   g_lua.registerFunction<std::shared_ptr<DNSRule>(std::shared_ptr<TimedIPSetRule>::*)()>("slice", [](std::shared_ptr<TimedIPSetRule> tisr) {
       return std::dynamic_pointer_cast<DNSRule>(tisr);
     });
+
+#ifdef HAVE_NAMEDCACHE
+    g_lua.writeFunction("LookupWildRule", [](const std::shared_ptr<DNSDistNamedCache> pool) {
+          return std::shared_ptr<DNSRule>(new LookupWildRule(pool));
+      });
+#endif
+
 }
