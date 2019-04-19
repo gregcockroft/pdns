@@ -475,4 +475,10 @@ void setupLuaRules()
   g_lua.writeFunction("QNameSetRule", [](const DNSNameSet& names) {
       return std::shared_ptr<DNSRule>(new QNameSetRule(names));
     });
+#ifdef HAVE_NAMEDCACHE
+    g_lua.writeFunction("LookupWildRule", [](const std::shared_ptr<DNSDistNamedCache> pool) {
+          return std::shared_ptr<DNSRule>(new LookupWildRule(pool));
+      });
+#endif
+
 }
