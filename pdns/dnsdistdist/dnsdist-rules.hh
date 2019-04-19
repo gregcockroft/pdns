@@ -26,6 +26,10 @@
 #include "dnsdist-ecs.hh"
 #include "dnsparser.hh"
 
+#ifdef HAVE_NAMEDCACHE
+#include "dnsdist-namedcache.hh"
+#endif
+
 class MaxQPSIPRule : public DNSRule
 {
 public:
@@ -1072,3 +1076,41 @@ private:
   mutable LocalStateHolder<pools_t> d_pools;
   std::string d_poolname;
 };
+
+
+#ifdef HAVE_NAMEDCACHE
+
+class LookupWildRule : public DNSRule
+{
+public:
+    LookupWildRule(const std::shared_ptr<DNSDistNamedCache> pool) : d_pool(pool)
+    {
+    }
+    bool matches(const DNSQuestion* dq) const override
+    {
+      // Normalize the query, by converting it to lower-case, and remove the
+      // trailing period, if there is one.
+      std::string strQuery = toLower(dq->qname->toString());
+      if(strQuery.back() == '.') {
+        strQuery.pop_back();
+      }
+      if (strQuery.length() == 0) {
+        throw std::runtime_error("The DNS question's QNAME is a zero-length string");
+      }
+
+      std::string strRet;
+      int hitType = d_pool->lookupWild(strQuery, strRet);
+      bool found = !(hitType == CACHE_HIT::HIT_NONE);
+      return found;
+    }
+
+    string toString() const override
+    {
+      return "LookupWildRule";
+    }
+
+private:
+    std::shared_ptr<DNSDistNamedCache> d_pool;
+};
+
+#endif

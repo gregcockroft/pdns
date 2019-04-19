@@ -58,7 +58,7 @@ public:
   uint64_t getCdbHitsNoData();
   uint64_t getCacheMiss();
   int      lookup(const std::string& strQuery, std::string& result);
-  int      lookupWalk(const std::string& strQuery, std::string& strData, int iWalkMode = 0, bool bDebug = false);
+  int      lookupWild(const std::string& strQuery, std::string& strData);
   time_t getCreationTime();
   time_t getCounterResetTime();
   std::string getStatusText();

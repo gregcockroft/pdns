@@ -165,68 +165,46 @@ void setupLuaNamedCache(bool client)
     return nc->getErrMsg();
   });
 
-  /* NamedCache::lookupQWild(DNSQuestion, minLabels)
-   * A depth lookup is done starting from minLabels labels. If QName has less than minLabels labels, the entire QName is looked up once.
+
+    /* NamedCacheX::lookupWild(str)
    *
-   * Example of lookups done with minLabels=2 and QName foo.bar.foo.example.com.:
-   *  example.com.
-   *  foo.example.com.
-   *  bar.foo.example.com.
-   *  foo.bar.foo.example.com.
+   * Performs a lookup against a named cache, using the "str" as the lookup
+   * key. lookup will return a table with the following two keys:
+   *
+   * 		"found"	Holds a boolean value indicating whether or not the
+   * 			named cache lookup was successful.
+   * 		"data"	Any associated data, as a string. This value may be
+   * 			nil, or an empty string.
    */
-  g_lua.registerFunction<std::unordered_map<string, boost::variant<string, bool> >(std::shared_ptr<DNSDistNamedCache>::*)(DNSQuestion *dq, int minLabels)>("lookupQWild", [](const std::shared_ptr<DNSDistNamedCache> nc, DNSQuestion *dq, int minLabels) {
-    std::unordered_map<string, boost::variant<string, bool>> tableResult;
-    if (!nc) {
-      return tableResult;
-    }
+    g_lua.registerFunction<std::unordered_map<string, boost::variant<string, bool>>(std::shared_ptr<DNSDistNamedCache>::*)(std::string)>("lookupWild",
+            [](const std::shared_ptr<DNSDistNamedCache> pool, const std::string& query) {
+                std::unordered_map<string, boost::variant<string, bool>> tableResult;
 
-    DNSName reverse = dq->qname->makeLowerCase().labelReverse();
-    int totalLabelCount = reverse.countLabels();
-    DNSName key;
+                // Normalize, and validate the query by making sure it isn't a zero-length
+                // string, and remove the trailing period from the query, if there is one.
+                std::string q = toLower(query);
+                if (q.back() == '.') {
+                    q.pop_back();
+                }
+                if (q.length() == 0) {
+                    throw std::runtime_error("Cannot call lookup with a zero-length string");
+                }
 
-    bool found = false;
-    std::string strRet;
-    for (const auto& label : reverse.getRawLabels()) {
-      key.appendRawLabel(label);
-      if (totalLabelCount >= minLabels && key.countLabels() < minLabels) {
-        // skip actual lookup
-        continue;
-      }
+                if (pool) {
+                    std::shared_ptr<DNSDistNamedCache> nc = pool;
 
-      // Normalize the query, by converting it to lower-case, and remove the
-      // trailing period, if there is one.
-      std::string strQuery = key.labelReverse().toString();
-      if(strQuery.back() == '.') {
-        strQuery.pop_back();
-      }
-      if (strQuery.length() == 0) {
-        throw std::runtime_error("The DNS question's QNAME is a zero-length string");
-      }
+                    std::string data;
+                    int hitType = nc->lookupWild(q, data);
+                    bool found = !(hitType == CACHE_HIT::HIT_NONE);
 
-      int hitType = nc->lookup(strQuery, strRet);
-      found = !(hitType == CACHE_HIT::HIT_NONE);
-      if (found) {
-        break;
-      }
-    }
+                    tableResult.insert({"found", found});
+                    tableResult.insert({"data", data});
+                }
+                return tableResult;
 
-    tableResult.insert({"found", found});
-    tableResult.insert({"data", strRet});
+            });
 
-    // Make sure the DNSQuestion.QTag field is initialized, and add the
-    // qtags to the DNSQuestion.
-    if(dq->qTag == nullptr) {
-      dq->qTag = std::make_shared<QTag>();
-    }
-
-    dq->qTag->insert({"found", std::string(found ? "yes": "no")});
-    if (found) {
-      dq->qTag->insert({"data", strRet});
-    }
-    return tableResult;
-  });
-
-    /* NamedCacheX::lookupQ(DNSQuestion)
+    /* NamedCacheX::lookupQWild(DNSQuestion)
      *
      * Performs a lookup against a named cache, using the provided DNSQuestion.
      * This method will return a table containing the following keys:
@@ -246,20 +224,9 @@ void setupLuaNamedCache(bool client)
      * 		"data"
      * 			Any associated data, if nc_found == "yes".
      */
-    g_lua.registerFunction<std::unordered_map<string, boost::variant<string, bool> >(std::shared_ptr<DNSDistNamedCache>::*)(DNSQuestion *dq, const boost::optional<int>, const boost::optional<bool>)>("lookupQ",
-                    [](const std::shared_ptr<DNSDistNamedCache> pool, DNSQuestion *dq, const boost::optional<int> walkMode, const boost::optional<bool> debug) {
+    g_lua.registerFunction<std::unordered_map<string, boost::variant<string, bool> >(std::shared_ptr<DNSDistNamedCache>::*)(DNSQuestion *dq)>("lookupQWild",
+                    [](const std::shared_ptr<DNSDistNamedCache> pool, DNSQuestion *dq) {
     std::unordered_map<string, boost::variant<string, bool>> tableResult;
-    int iWalkMode = 3; // fastest
-    if (walkMode) {
-      iWalkMode = *walkMode;
-    }
-    bool bDebug = false;
-    if (debug) {
-      bDebug = *debug;
-    }
-    if (! (pool)) {
-      return tableResult;
-    }
     std::shared_ptr<DNSDistNamedCache> nc = pool;
 
     // Normalize the query, by converting it to lower-case, and remove the
@@ -273,7 +240,7 @@ void setupLuaNamedCache(bool client)
     }
 
     std::string strRet;
-    int hitType = nc->lookupWalk(strQuery, strRet, iWalkMode, bDebug);
+    int hitType = nc->lookupWild(strQuery, strRet);
     bool found = !(hitType == CACHE_HIT::HIT_NONE);
 
     tableResult.insert({"found", found});
