@@ -218,4 +218,8 @@ AS_IF([test "x$enable_namedcache" != "xno"],
   [AC_MSG_NOTICE([NAMEDCACHE: yes])],
   [AC_MSG_NOTICE([NAMEDCACHE: no])]
 )
+AS_IF([test "x$enable_namedcache" != "xno"],
+  [AC_MSG_NOTICE([NAMEDCACHE: yes])],
+  [AC_MSG_NOTICE([NAMEDCACHE: no])]
+)
 AC_MSG_NOTICE([])

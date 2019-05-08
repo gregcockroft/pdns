@@ -1442,10 +1442,6 @@ ProcessQueryResult processQuery(DNSQuestion& dq, ClientState& cs, LocalHolders& 
 
           return ProcessQueryResult::SendAnswer;
         }
-#ifdef HAVE_PROTOBUF
-        dr.uniqueId = dq.uniqueId;
-#endif
-        dr.qTag = dq.qTag;
 
         if (!dq.subnet) {
           /* there was no existing ECS on the query, enable the zero-scope feature */
