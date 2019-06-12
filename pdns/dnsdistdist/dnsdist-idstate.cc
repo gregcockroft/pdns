@@ -21,6 +21,8 @@ DNSResponse makeDNSResponseFromIDState(IDState& ids, struct dnsheader* dh, size_
 #ifdef HAVE_PROTOBUF
   dr.uniqueId = std::move(ids.uniqueId);
 #endif
+  dr.qTag = ids.qTag;
+
   if (ids.dnsCryptQuery) {
     dr.dnsCryptQuery = std::move(ids.dnsCryptQuery);
   }
