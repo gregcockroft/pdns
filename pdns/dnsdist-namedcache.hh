@@ -71,6 +71,7 @@ private:
   size_t d_maxentries;
   time_t d_tcreated;
 
+  std::mutex lookupmutex;        // mutex for lookupWild when called from C++
   std::unique_ptr<LRUCache> d_cacheholder{nullptr};
   std::atomic<uint64_t> cacheHits{0};
   std::atomic<uint64_t> cacheHitsNoData{0};

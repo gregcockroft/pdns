@@ -2,13 +2,6 @@
 
 #ifdef HAVE_NAMEDCACHE
 
-using namedCaches_t = std::unordered_map<std::string, std::shared_ptr<DNSDistNamedCache>>;
-
-std::mutex g_nc_table_mutex;        // mutex to prevent r/w named cache table problems
-namedCaches_t g_namedCacheTable;
-std::atomic<std::uint16_t> g_namedCacheTempFileCount;
-std::string g_namedCacheTempPrefix = "-4rld";
-
 DNSDistNamedCache::DNSDistNamedCache(const std::string& fileName, size_t maxEntries) :
  d_filename(fileName), d_maxentries(maxEntries), d_sw(make_unique<StopWatch>())
 {
@@ -76,8 +69,9 @@ int DNSDistNamedCache::lookup(const std::string& strQuery, std::string& result) 
 int DNSDistNamedCache::lookupWild(const std::string& strQuery, std::string& strData)
 {
 int iLoc = CACHE_HIT::HIT_NONE;
+    std::lock_guard<std::mutex> lock(lookupmutex);   // This call can be made from a C++ rule versus a locked lua
 
-    bool bDebug = true;        // force debug
+    bool bDebug = false;        // force debug
 
       std::string strTestName;
       int iPeriod = 0;
