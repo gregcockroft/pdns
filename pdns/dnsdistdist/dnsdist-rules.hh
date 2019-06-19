@@ -1095,11 +1095,7 @@ public:
         strQuery.pop_back();
       }
       if (strQuery.length() == 0) {
-<<<<<<< HEAD
         return false;
-=======
-        throw std::runtime_error("The DNS question's QNAME is a zero-length string");
->>>>>>> origin/dev-greg
       }
 
       std::string strRet;
